@@ -18,7 +18,7 @@
   <div id="panel"></div>
 
   <script>
-    const RADIUS_METERS = 400; // 攝影機搜尋半徑（可自行修改）
+    const RADIUS_METERS = 400;
     let map, directionsService, directionsRenderer;
 
     function initMap() {
@@ -32,18 +32,24 @@
       const destination = document.getElementById('destination').value;
       const resp = await directionsService.route({ origin, destination, travelMode: 'DRIVING' });
       directionsRenderer.setDirections(resp);
+
       const steps = resp.routes[0].legs.flatMap(leg => leg.steps);
       const nextSteps = steps.slice(0, 8);
       document.getElementById('panel').innerHTML = '';
+      const visited = new Set();
+
       for (const s of nextSteps) {
         const loc = s.end_location;
-        const r = await fetch(`https://road-cctv.vercel.app/api/nearby-cameras?lat=${loc.lat()}&lng=${loc.lng()}&radius=${RADIUS_METERS}`);
+        const r = await fetch(`/api/nearby-cameras?lat=${loc.lat()}&lng=${loc.lng()}&radius=${RADIUS_METERS}`);
         const cams = await r.json();
         cams.forEach(cam => {
+          const key = `${cam.lat.toFixed(4)},${cam.lng.toFixed(4)}`;
+          if (visited.has(key)) return;
+          visited.add(key);
+
           const marker = new google.maps.Marker({ position: { lat: cam.lat, lng: cam.lng }, map });
           marker.addListener('click', () => {
-            //const html = `<div><b>${cam.name}</b><br><img src="${cam.snapshot_url}" style="max-width:240px;"></div>`;
-            const proxyUrl = `/proxy-image?url=${encodeURIComponent(cam.snapshot_url)}`;
+            const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(cam.snapshot_url)}`;
             const html = `<div><b>${cam.name}</b><br><img src="${proxyUrl}" style="max-width:240px;"></div>`;
             document.getElementById('panel').insertAdjacentHTML('beforeend', html);
           });
@@ -52,6 +58,6 @@
     });
   </script>
 
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjIA15OBZy9koDtAkdxQRXzKXBVmNFM3c&callback=initMap"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"></script>
 </body>
 </html>
