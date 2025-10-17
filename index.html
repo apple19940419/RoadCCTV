@@ -37,7 +37,7 @@
       document.getElementById('panel').innerHTML = '';
       for (const s of nextSteps) {
         const loc = s.end_location;
-        const r = await fetch(`/api/nearby-cameras?lat=${loc.lat()}&lng=${loc.lng()}&radius=${RADIUS_METERS}`);
+        const r = await fetch(`https://road-cctv.vercel.app/api/nearby-cameras?lat=${loc.lat()}&lng=${loc.lng()}&radius=${RADIUS_METERS}`);
         const cams = await r.json();
         cams.forEach(cam => {
           const marker = new google.maps.Marker({ position: { lat: cam.lat, lng: cam.lng }, map });
