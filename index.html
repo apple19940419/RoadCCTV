@@ -42,7 +42,9 @@
         cams.forEach(cam => {
           const marker = new google.maps.Marker({ position: { lat: cam.lat, lng: cam.lng }, map });
           marker.addListener('click', () => {
-            const html = `<div><b>${cam.name}</b><br><img src="${cam.snapshot_url}" style="max-width:240px;"></div>`;
+            //const html = `<div><b>${cam.name}</b><br><img src="${cam.snapshot_url}" style="max-width:240px;"></div>`;
+            const proxyUrl = `/proxy-image?url=${encodeURIComponent(cam.snapshot_url)}`;
+            const html = `<div><b>${cam.name}</b><br><img src="${proxyUrl}" style="max-width:240px;"></div>`;
             document.getElementById('panel').insertAdjacentHTML('beforeend', html);
           });
         });
