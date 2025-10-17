@@ -4,21 +4,22 @@ const cameras = [
     name: "台北101全景 (SkylineWebcams)",
     lat: 25.033964,
     lng: 121.564468,
-    snapshot_url: "https://www.skylinewebcams.com/en/webcam/taiwan/new-taipei-city/taipei-city/taipei-taiwan.html"
+    //snapshot_url: "https://www.skylinewebcams.com/en/webcam/taiwan/new-taipei-city/taipei-city/taipei-taiwan.html"
+    snapshot_url: "https://youtu.be/z_fY1pj1VBw"
   },
   {
     id: "dadaocheng_riverside",
     name: "大稻埕河濱公園 (WebCamtaxi)",
     lat: 25.057366,
     lng: 121.509052,
-    snapshot_url: "https://www.webcamtaxi.com/en/taiwan/taipei/dadaocheng-riverside.html"
+    snapshot_url: "https://www.youtube.com/watch?v=Ndo_8RuefH4"
   },
   {
     id: "taipei_main_station",
     name: "台北車站周邊 (YouTube Live)",
     lat: 25.047924,
     lng: 121.517081,
-    snapshot_url: "https://www.youtube.com/embed/qYF8hG0LqfM"
+    snapshot_url: "https://www.youtube.com/watch?v=34h_Cy_n0Ok"
   }
 ];
 
@@ -37,7 +38,8 @@ module.exports = async (req, res) => {
 
   const nearby = cameras
     .map(c => ({ ...c, dist: distance({lat:+lat, lng:+lng}, c) }))
-    .sort((a,b) => a.dist - b.dist);
+    .sort((a,b) => a.dist - b.dist)
+    .slice(0, 2);;
     //.filter(c => c.dist <= radius);
 
   res.status(200).json(nearby);
