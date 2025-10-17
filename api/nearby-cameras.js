@@ -23,7 +23,7 @@ const cameras = [
 ];
 
 module.exports = async (req, res) => {
-  const { lat, lng, radius = 1000 } = req.query;
+  const { lat, lng, radius = 10000 } = req.query;
   const R = 6371000;
   const toRad = deg => deg * Math.PI / 180;
   const distance = (a, b) => {
