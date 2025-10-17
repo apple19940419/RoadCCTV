@@ -1,63 +1,45 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="zh-TW">
 <head>
-  <meta charset="utf-8">
-  <title>台北即時路口攝影機 - RoadCCTV</title>
-  <style>
-    #map { height: 80vh; width: 100%; }
-    #panel { height: 20vh; overflow-y: auto; background: #f4f4f4; padding: 10px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RoadCCTV v2</title>
+<style>
+  body { font-family: sans-serif; text-align: center; }
+  #map { width: 100%; height: 400px; margin-bottom: 1rem; }
+  iframe { width: 480px; height: 270px; margin: 8px; border: none; }
+</style>
 </head>
 <body>
-  <h3>RoadCCTV - 台北即時路口攝影機 Demo</h3>
-  <input id="origin" placeholder="起點，例如：台北車站">
-  <input id="destination" placeholder="終點，例如：101大樓">
-  <button id="go">開始導航並顯示監視器</button>
-
+  <h1>RoadCCTV 台北路口即時影像 Demo</h1>
   <div id="map"></div>
-  <div id="panel"></div>
+  <div id="videos"></div>
 
   <script>
-    const RADIUS_METERS = 400;
-    let map, directionsService, directionsRenderer;
+  const map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: 25.033964, lng: 121.564468 },
+    zoom: 13,
+  });
 
-    function initMap() {
-      map = new google.maps.Map(document.getElementById("map"), { center: { lat: 25.0330, lng: 121.5654 }, zoom: 13 });
-      directionsService = new google.maps.DirectionsService();
-      directionsRenderer = new google.maps.DirectionsRenderer({ map });
-    }
-
-    document.getElementById('go').addEventListener('click', async () => {
-      const origin = document.getElementById('origin').value;
-      const destination = document.getElementById('destination').value;
-      const resp = await directionsService.route({ origin, destination, travelMode: 'DRIVING' });
-      directionsRenderer.setDirections(resp);
-
-      const steps = resp.routes[0].legs.flatMap(leg => leg.steps);
-      const nextSteps = steps.slice(0, 8);
-      document.getElementById('panel').innerHTML = '';
-      const visited = new Set();
-
-      for (const s of nextSteps) {
-        const loc = s.end_location;
-        const r = await fetch(`/api/nearby-cameras?lat=${loc.lat()}&lng=${loc.lng()}&radius=${RADIUS_METERS}`);
-        const cams = await r.json();
-        cams.forEach(cam => {
-          const key = `${cam.lat.toFixed(4)},${cam.lng.toFixed(4)}`;
-          if (visited.has(key)) return;
-          visited.add(key);
-
-          const marker = new google.maps.Marker({ position: { lat: cam.lat, lng: cam.lng }, map });
-          marker.addListener('click', () => {
-            const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(cam.snapshot_url)}`;
-            const html = `<div><b>${cam.name}</b><br><img src="${proxyUrl}" style="max-width:240px;"></div>`;
-            document.getElementById('panel').insertAdjacentHTML('beforeend', html);
-          });
+  fetch(`/api/nearby-cameras?lat=25.0339&lng=121.5644`)
+    .then(res => res.json())
+    .then(cams => {
+      const videosDiv = document.getElementById("videos");
+      cams.forEach(c => {
+        new google.maps.Marker({
+          position: { lat: c.lat, lng: c.lng },
+          map,
+          title: c.name
         });
-      }
+        const iframe = document.createElement("iframe");
+        iframe.src = c.snapshot_url;
+        iframe.title = c.name;
+        videosDiv.appendChild(iframe);
+      });
     });
   </script>
-
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjIA15OBZy9koDtAkdxQRXzKXBVmNFM3c&callback=initMap"></script>
+  <script async
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=()=>{}">
+  </script>
 </body>
 </html>
