@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>台北即時路口攝影機 - RoadCCTV</title>
+  <style>
+    #map { height: 80vh; width: 100%; }
+    #panel { height: 20vh; overflow-y: auto; background: #f4f4f4; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h3>RoadCCTV - 台北即時路口攝影機 Demo</h3>
+  <input id="origin" placeholder="起點，例如：台北車站">
+  <input id="destination" placeholder="終點，例如：101大樓">
+  <button id="go">開始導航並顯示監視器</button>
+
+  <div id="map"></div>
+  <div id="panel"></div>
+
+  <script>
+    const RADIUS_METERS = 400; // 攝影機搜尋半徑（可自行修改）
+    let map, directionsService, directionsRenderer;
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), { center: { lat: 25.0330, lng: 121.5654 }, zoom: 13 });
+      directionsService = new google.maps.DirectionsService();
+      directionsRenderer = new google.maps.DirectionsRenderer({ map });
+    }
+
+    document.getElementById('go').addEventListener('click', async () => {
+      const origin = document.getElementById('origin').value;
+      const destination = document.getElementById('destination').value;
+      const resp = await directionsService.route({ origin, destination, travelMode: 'DRIVING' });
+      directionsRenderer.setDirections(resp);
+      const steps = resp.routes[0].legs.flatMap(leg => leg.steps);
+      const nextSteps = steps.slice(0, 8);
+      document.getElementById('panel').innerHTML = '';
+      for (const s of nextSteps) {
+        const loc = s.end_location;
+        const r = await fetch(`/api/nearby-cameras?lat=${loc.lat()}&lng=${loc.lng()}&radius=${RADIUS_METERS}`);
+        const cams = await r.json();
+        cams.forEach(cam => {
+          const marker = new google.maps.Marker({ position: { lat: cam.lat, lng: cam.lng }, map });
+          marker.addListener('click', () => {
+            const html = `<div><b>${cam.name}</b><br><img src="${cam.snapshot_url}" style="max-width:240px;"></div>`;
+            document.getElementById('panel').insertAdjacentHTML('beforeend', html);
+          });
+        });
+      }
+    });
+  </script>
+
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjIA15OBZy9koDtAkdxQRXzKXBVmNFM3c&callback=initMap"></script>
+</body>
+</html>
