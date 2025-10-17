@@ -2,16 +2,15 @@ const fetch = require('node-fetch');
 
 module.exports = async (req, res) => {
   const { lat, lng, radius = 500 } = req.query;
-  //const CCTV_URL = 'https://tcgbusfs.blob.core.windows.net/blobtisv/GetCCTVInfo.json';
-  const CCTV_URL = 'https://corsproxy.io/?https://tcgbusfs.blob.core.windows.net/blobtisv/GetCCTVInfo.json';
+  const CCTV_URL = 'https://traffic.taipei/api/v1/cctv';
+
   try {
     const response = await fetch(CCTV_URL, { redirect: "follow" });
     if (!response.ok) throw new Error(`CCTV API status ${response.status}`);
     const json = await response.json();
-    //const records = json.result?.results || [];
-    const records = json.data || json.result?.results || [];
+    const records = json.result?.results || [];
     if (!records.length) throw new Error("No CCTV records found");
-    
+
     const R = 6371000;
     const toRad = deg => deg * Math.PI / 180;
     const distance = (a, b) => {
@@ -24,11 +23,11 @@ module.exports = async (req, res) => {
     };
 
     const parsed = records.map(r => ({
-      id: r.Id || r._id || r.id,
-      name: r.Name || r.roadsection || '未命名監視器',
-      lat: parseFloat(r.PositionLat || r.lat || r.latitude),
-      lng: parseFloat(r.PositionLon || r.lng || r.longitude),
-      snapshot_url: r.ImageUrl || r.url || r.imageUrl || '',
+      id: r.id,
+      name: r.name || '未命名監視器',
+      lat: parseFloat(r.lat),
+      lng: parseFloat(r.lng),
+      snapshot_url: r.image || '',
     })).filter(c => !isNaN(c.lat) && !isNaN(c.lng) && c.snapshot_url);
 
     const sorted = parsed
