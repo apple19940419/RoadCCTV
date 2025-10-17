@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 
 module.exports = async (req, res) => {
   const { lat, lng, radius = 500 } = req.query;
-  const CCTV_URL = 'https://data.taipei/api/v1/dataset/f0b8282e-6a8b-4961-bf6d-65eabfbf8b2c?scope=resourceAquire';
+  const CCTV_URL = 'https://tcgbusfs.blob.core.windows.net/blobtisv/GetCCTVInfo.json';
   try {
     const response = await fetch(CCTV_URL);
     if (!response.ok) throw new Error(`CCTV API status ${response.status}`);
@@ -20,12 +20,12 @@ module.exports = async (req, res) => {
     };
 
     const parsed = records.map(r => ({
-      id: r._id || r.id,
-      name: r.stationName || r.name || '未命名監視器',
-      lat: parseFloat(r.lat || r.latitude),
-      lng: parseFloat(r.lng || r.longitude),
-      snapshot_url: r.url || r.imageUrl || ''
-    })).filter(c => !isNaN(c.lat) && !isNaN(c.lng));
+      id: r.Id || r._id || r.id,
+      name: r.Name || r.roadsection || '未命名監視器',
+      lat: parseFloat(r.PositionLat || r.lat || r.latitude),
+      lng: parseFloat(r.PositionLon || r.lng || r.longitude),
+      snapshot_url: r.ImageUrl || r.url || r.imageUrl || '',
+    })).filter(c => !isNaN(c.lat) && !isNaN(c.lng) && c.snapshot_url);
 
     const sorted = parsed
       .map(c => ({ ...c, dist: distance({ lat: +lat, lng: +lng }, c) }))
