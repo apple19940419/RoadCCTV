@@ -37,8 +37,8 @@ module.exports = async (req, res) => {
 
   const nearby = cameras
     .map(c => ({ ...c, dist: distance({lat:+lat, lng:+lng}, c) }))
-    .sort((a,b) => a.dist - b.dist)
-    .filter(c => c.dist <= radius);
+    .sort((a,b) => a.dist - b.dist);
+    //.filter(c => c.dist <= radius);
 
   res.status(200).json(nearby);
 };
