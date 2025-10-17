@@ -2,12 +2,16 @@ const fetch = require('node-fetch');
 
 module.exports = async (req, res) => {
   const { lat, lng, radius = 500 } = req.query;
-  const CCTV_URL = 'https://tcgbusfs.blob.core.windows.net/blobtisv/GetCCTVInfo.json';
+  //const CCTV_URL = 'https://tcgbusfs.blob.core.windows.net/blobtisv/GetCCTVInfo.json';
+  const CCTV_URL = 'https://corsproxy.io/?https://tcgbusfs.blob.core.windows.net/blobtisv/GetCCTVInfo.json';
   try {
-    const response = await fetch(CCTV_URL);
+    const response = await fetch(CCTV_URL, { redirect: "follow" });
     if (!response.ok) throw new Error(`CCTV API status ${response.status}`);
     const json = await response.json();
-    const records = json.result?.results || [];
+    //const records = json.result?.results || [];
+    const records = json.data || json.result?.results || [];
+    if (!records.length) throw new Error("No CCTV records found");
+    
     const R = 6371000;
     const toRad = deg => deg * Math.PI / 180;
     const distance = (a, b) => {
