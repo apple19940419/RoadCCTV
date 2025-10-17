@@ -5,21 +5,21 @@ const cameras = [
     lat: 25.033964,
     lng: 121.564468,
     //snapshot_url: "https://www.skylinewebcams.com/en/webcam/taiwan/new-taipei-city/taipei-city/taipei-taiwan.html"
-    snapshot_url: "https://youtu.be/z_fY1pj1VBw"
+    snapshot_url: "https://youtu.be/embed/z_fY1pj1VBw"
   },
   {
     id: "dadaocheng_riverside",
     name: "大稻埕河濱公園 (WebCamtaxi)",
     lat: 25.057366,
     lng: 121.509052,
-    snapshot_url: "https://www.youtube.com/watch?v=Ndo_8RuefH4"
+    snapshot_url: "https://www.youtube.com/embed/watch?v=Ndo_8RuefH4"
   },
   {
     id: "taipei_main_station",
     name: "台北車站周邊 (YouTube Live)",
     lat: 25.047924,
     lng: 121.517081,
-    snapshot_url: "https://www.youtube.com/watch?v=34h_Cy_n0Ok"
+    snapshot_url: "https://www.youtube.com/embed/watch?v=34h_Cy_n0Ok"
   }
 ];
 

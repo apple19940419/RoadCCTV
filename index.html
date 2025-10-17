@@ -68,17 +68,28 @@
 
           const videosDiv = document.getElementById("videos");
           cams.forEach(c => {
-            // 地圖標記
+            // 加入地圖標記
             new google.maps.Marker({
               position: { lat: c.lat, lng: c.lng },
               map,
               title: c.name,
             });
 
-            // 鏡頭顯示框
+            // === 轉換 YouTube 連結為可嵌入格式 ===
+            let url = c.snapshot_url;
+            if (url.includes("youtu.be/")) {
+              const videoId = url.split("youtu.be/")[1];
+              url = `https://www.youtube.com/embed/${videoId}`;
+            } else if (url.includes("youtube.com/watch?v=")) {
+              const videoId = url.split("v=")[1];
+              url = `https://www.youtube.com/embed/${videoId}`;
+            }
+
+            // === 建立 iframe 顯示 ===
             const iframe = document.createElement("iframe");
-            iframe.src = c.snapshot_url;
+            iframe.src = url;
             iframe.title = c.name;
+            iframe.allowFullscreen = true;
             videosDiv.appendChild(iframe);
           });
         })
